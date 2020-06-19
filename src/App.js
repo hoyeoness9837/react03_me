@@ -1,50 +1,38 @@
 import React, { Component } from 'react';
-import Card from './components/Card';
 import Form from './components/Form';
+import Movie from './components/Movie';
+import axios from 'axios';
 
 class App extends Component {
   state = {
-    name: '',
-    age: '',
-    breed: '',
-    pets: [],
+    title: '',
+    movie: {},
   };
 
-  handleInputChange = (e) => {
-    this.setState({
-      [e.target.name]: e.target.value,
-    });
+  handleInputChange = (event) => {
+    this.setState({ [event.target.name]: event.target.value });
   };
 
-  handleSubmit = (e) => {
-    e.preventDefault();
-    let pets = JSON.parse(JSON.stringify(this.state.pets));
-    pets.push({
-      name: this.state.name,
-      age: this.state.age,
-      breed: this.state.breed,
-    });
-    this.setState({
-      pets,
-      name: '',
-      age: '',
-      breed: '',
-    });
+  handleSearchMovie = (event) => {
+    event.preventDefault();
+    console.log(this.state.title);
+    axios
+      .get(`http://www.omdbapi.com/?apikey=trilogy&t=${this.state.title}`)
+      .then(({ data }) => {
+        this.setState({ movie: data, title: '' });
+      })
+      .catch((err) => console.error(err));
   };
 
   render() {
     return (
       <>
         <Form
-          name={this.state.name}
-          age={this.state.age}
-          breed={this.state.breed}
+          title={this.state.title}
           handleInputChange={this.handleInputChange}
-          handleSubmit={this.handleSubmit}
+          handleSearchMovie={this.handleSearchMovie}
         />
-        {this.state.pets.map((pet) => (
-          <Card pet={pet} />
-        ))}
+        {this.state.movie.Title ? <Movie movie={this.state.movie} /> : null}
       </>
     );
   }
